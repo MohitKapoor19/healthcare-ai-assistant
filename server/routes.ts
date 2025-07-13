@@ -161,17 +161,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Health check for AI models
   app.get("/api/health", async (req, res) => {
     try {
-      // Simple health check - could be expanded to test actual AI connectivity
+      // Test actual Groq API connectivity
+      const modelStatus = await aiService.checkApiHealth();
+      
       res.json({
         status: "healthy",
         timestamp: new Date().toISOString(),
-        models: {
-          reasoner: "connected",
-          chat: "connected"
+        models: modelStatus,
+        providers: {
+          groq: {
+            reasoner: "DeepSeek R1 Distill Llama 70B",
+            chat: "Qwen3 32B"
+          }
         }
       });
     } catch (error) {
-      res.status(500).json({ error: "Service unavailable" });
+      res.status(500).json({
+        status: "unhealthy",
+        timestamp: new Date().toISOString(),
+        error: "Health check failed",
+        models: {
+          reasoner: "disconnected",
+          chat: "disconnected"
+        }
+      });
     }
   });
 

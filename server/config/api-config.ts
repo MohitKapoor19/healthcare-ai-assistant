@@ -1,13 +1,12 @@
 export const API_CONFIG = {
-  reasoner: {
-    url: process.env.OLLAMA_URL || "http://localhost:11434/api/chat",
-    model: process.env.REASONER_MODEL || "deepseek-reasoner",
+  groq: {
+    reasoner: {
+      model: 'deepseek-r1-distill-llama-70b',
+      name: 'DeepSeek R1 Distill Llama 70B',
+    },
+    chat: {
+      model: 'qwen2.5-32b-instruct',
+      name: 'Qwen3 32B',
+    },
   },
-  chat: {
-    url: process.env.OLLAMA_URL || "http://localhost:11434/api/chat",
-    model: process.env.CHAT_MODEL || "deepseek-chat",
-  },
-  deepseek_api_placeholder: {
-    apiKey: process.env.DEEPSEEK_API_KEY || "PASTE_YOUR_DEEPSEEK_API_KEY_HERE",
-  }
 };

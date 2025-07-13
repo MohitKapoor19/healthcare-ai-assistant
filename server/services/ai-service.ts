@@ -1,4 +1,4 @@
-import { API_CONFIG } from "../config/api-config";
+import Groq from "groq-sdk";
 
 export interface DiagnosisResult {
   name: string;
@@ -18,51 +18,63 @@ export interface AIAnalysisResult {
 }
 
 export class AIService {
-  private async callOllamaAPI(prompt: string, model: string): Promise<any> {
-    const response = await fetch(API_CONFIG.reasoner.url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: model,
+  private groqReasoner: Groq;
+  private groqChat: Groq;
+
+  constructor() {
+    this.groqReasoner = new Groq({ 
+      apiKey: process.env.GROQ_API_KEY_REASONER 
+    });
+    this.groqChat = new Groq({ 
+      apiKey: process.env.GROQ_API_KEY_CHAT 
+    });
+  }
+
+  private async callGroqAPI(prompt: string, useReasoner: boolean = true): Promise<string> {
+    try {
+      const groqClient = useReasoner ? this.groqReasoner : this.groqChat;
+      const model = useReasoner ? "deepseek-r1-distill-llama-70b" : "qwen2.5-32b-instruct";
+
+      const completion = await groqClient.chat.completions.create({
         messages: [
           {
-            role: 'user',
+            role: "user",
             content: prompt
           }
         ],
-        stream: false
-      }),
-    });
+        model: model,
+        temperature: 0.3,
+        max_tokens: 2000,
+        top_p: 0.9,
+      });
 
-    if (!response.ok) {
-      throw new Error(`Ollama API error: ${response.statusText}`);
+      return completion.choices[0]?.message?.content || "";
+    } catch (error) {
+      console.error('Groq API Error:', error);
+      throw error;
     }
-
-    const data = await response.json();
-    return data.message.content;
   }
 
   async analyzeSymptoms(symptoms: string, mode: 'doctor' | 'patient', patientInfo?: any): Promise<AIAnalysisResult> {
     const basePrompt = this.buildAnalysisPrompt(symptoms, mode, patientInfo);
     
     try {
-      const reasonerResponse = await this.callOllamaAPI(basePrompt, API_CONFIG.reasoner.model);
+      // Use DeepSeek R1 Distill Llama 70B for medical reasoning
+      const reasonerResponse = await this.callGroqAPI(basePrompt, true);
       
       // Parse the reasoner response to extract structured data
       const analysisResult = this.parseReasonerResponse(reasonerResponse);
       
-      // Generate follow-up questions using chat model
+      // Generate follow-up questions using Qwen3 32B chat model
       const followUpPrompt = this.buildFollowUpPrompt(symptoms, analysisResult);
-      const chatResponse = await this.callOllamaAPI(followUpPrompt, API_CONFIG.chat.model);
+      const chatResponse = await this.callGroqAPI(followUpPrompt, false);
       
       analysisResult.followUpQuestions = this.parseFollowUpQuestions(chatResponse);
       
       return analysisResult;
     } catch (error) {
-      console.error('AI Service Error:', error);
-      // Fallback to demo mode when Ollama is not available
+      console.error('Groq AI Service Error:', error);
+      // Fallback to demo mode when Groq API is not available
       return this.generateDemoAnalysis(symptoms, mode, patientInfo);
     }
   }
@@ -316,9 +328,29 @@ Focus on:
 Keep the language simple and reassuring. Avoid medical jargon.`;
 
     try {
-      return await this.callOllamaAPI(prompt, API_CONFIG.chat.model);
+      return await this.callGroqAPI(prompt, false); // Use chat model for education
     } catch (error) {
       return "Educational content is temporarily unavailable. Please consult with your healthcare provider for more information.";
+    }
+  }
+
+  async checkApiHealth(): Promise<{ reasoner: string; chat: string }> {
+    const testPrompt = "Hello, respond with 'OK' if you can process this message.";
+    
+    try {
+      const reasonerTest = await this.callGroqAPI(testPrompt, true);
+      const chatTest = await this.callGroqAPI(testPrompt, false);
+      
+      return {
+        reasoner: reasonerTest.toLowerCase().includes('ok') ? 'connected' : 'responding',
+        chat: chatTest.toLowerCase().includes('ok') ? 'connected' : 'responding'
+      };
+    } catch (error) {
+      console.error('API Health Check Error:', error);
+      return {
+        reasoner: 'disconnected',
+        chat: 'disconnected'
+      };
     }
   }
 }
