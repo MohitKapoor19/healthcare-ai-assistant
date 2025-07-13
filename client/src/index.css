@@ -4,78 +4,80 @@
 
 :root {
   --background: hsl(0, 0%, 100%);
-  --foreground: hsl(20, 14.3%, 4.1%);
-  --muted: hsl(60, 4.8%, 95.9%);
-  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --foreground: hsl(224, 71.4%, 4.1%);
+  --muted: hsl(220, 14.3%, 95.9%);
+  --muted-foreground: hsl(220, 8.9%, 46.1%);
   --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --popover-foreground: hsl(224, 71.4%, 4.1%);
   --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(20, 14.3%, 4.1%);
-  --border: hsl(20, 5.9%, 90%);
-  --input: hsl(20, 5.9%, 90%);
-  --primary: hsl(207, 90%, 54%);
-  --primary-foreground: hsl(211, 100%, 99%);
-  --secondary: hsl(60, 4.8%, 95.9%);
-  --secondary-foreground: hsl(24, 9.8%, 10%);
-  --accent: hsl(60, 4.8%, 95.9%);
-  --accent-foreground: hsl(24, 9.8%, 10%);
+  --card-foreground: hsl(224, 71.4%, 4.1%);
+  --border: hsl(220, 13%, 91%);
+  --input: hsl(220, 13%, 91%);
+  --primary: hsl(217, 91%, 60%);
+  --primary-foreground: hsl(0, 0%, 98%);
+  --secondary: hsl(220, 14.3%, 95.9%);
+  --secondary-foreground: hsl(220.9, 39.3%, 11%);
+  --accent: hsl(220, 14.3%, 95.9%);
+  --accent-foreground: hsl(220.9, 39.3%, 11%);
   --destructive: hsl(0, 84.2%, 60.2%);
-  --destructive-foreground: hsl(60, 9.1%, 97.8%);
-  --ring: hsl(20, 14.3%, 4.1%);
-  --radius: 0.5rem;
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(217, 91%, 60%);
+  --radius: 0.75rem;
 
-  /* Medical color scheme */
-  --medical-blue: hsl(207, 90%, 54%);
-  --medical-green: hsl(159, 64%, 39%);
-  --medical-red: hsl(0, 73%, 56%);
-  --medical-gray-50: hsl(210, 40%, 98%);
-  --medical-gray-100: hsl(210, 40%, 96%);
-  --medical-gray-200: hsl(214, 32%, 91%);
-  --medical-gray-300: hsl(213, 27%, 84%);
-  --medical-gray-400: hsl(215, 20%, 65%);
-  --medical-gray-500: hsl(215, 16%, 47%);
-  --medical-gray-600: hsl(215, 19%, 35%);
-  --medical-gray-700: hsl(215, 25%, 27%);
-  --medical-gray-800: hsl(217, 33%, 17%);
-  --medical-gray-900: hsl(222, 84%, 5%);
+  /* Enhanced Medical color scheme */
+  --medical-blue: hsl(217, 91%, 60%);
+  --medical-blue-light: hsl(217, 91%, 95%);
+  --medical-green: hsl(142, 76%, 36%);
+  --medical-green-light: hsl(142, 76%, 95%);
+  --medical-red: hsl(0, 84.2%, 60.2%);
+  --medical-red-light: hsl(0, 84.2%, 95%);
+  --medical-yellow: hsl(43, 96%, 56%);
+  --medical-yellow-light: hsl(43, 96%, 95%);
+  
+  /* Enhanced gradients */
+  --gradient-primary: linear-gradient(135deg, hsl(217, 91%, 60%) 0%, hsl(217, 91%, 70%) 100%);
+  --gradient-success: linear-gradient(135deg, hsl(142, 76%, 36%) 0%, hsl(142, 76%, 46%) 100%);
+  --gradient-warning: linear-gradient(135deg, hsl(43, 96%, 56%) 0%, hsl(43, 96%, 66%) 100%);
+  --gradient-danger: linear-gradient(135deg, hsl(0, 84.2%, 60.2%) 0%, hsl(0, 84.2%, 70.2%) 100%);
 }
 
 .dark {
-  --background: hsl(240, 10%, 3.9%);
-  --foreground: hsl(0, 0%, 98%);
-  --muted: hsl(240, 3.7%, 15.9%);
-  --muted-foreground: hsl(240, 5%, 64.9%);
-  --popover: hsl(240, 10%, 3.9%);
-  --popover-foreground: hsl(0, 0%, 98%);
-  --card: hsl(240, 10%, 3.9%);
-  --card-foreground: hsl(0, 0%, 98%);
-  --border: hsl(240, 3.7%, 15.9%);
-  --input: hsl(240, 3.7%, 15.9%);
-  --primary: hsl(207, 90%, 54%);
-  --primary-foreground: hsl(211, 100%, 99%);
-  --secondary: hsl(240, 3.7%, 15.9%);
-  --secondary-foreground: hsl(0, 0%, 98%);
-  --accent: hsl(240, 3.7%, 15.9%);
-  --accent-foreground: hsl(0, 0%, 98%);
+  --background: hsl(224, 71.4%, 4.1%);
+  --foreground: hsl(210, 40%, 98%);
+  --muted: hsl(223, 47%, 11%);
+  --muted-foreground: hsl(215.4, 16.3%, 56.9%);
+  --popover: hsl(224, 71.4%, 4.1%);
+  --popover-foreground: hsl(210, 40%, 98%);
+  --card: hsl(224, 71.4%, 4.1%);
+  --card-foreground: hsl(210, 40%, 98%);
+  --border: hsl(216, 34%, 17%);
+  --input: hsl(216, 34%, 17%);
+  --primary: hsl(217, 91%, 60%);
+  --primary-foreground: hsl(222.2, 84%, 4.9%);
+  --secondary: hsl(222.2, 84%, 4.9%);
+  --secondary-foreground: hsl(210, 40%, 98%);
+  --accent: hsl(216, 34%, 17%);
+  --accent-foreground: hsl(210, 40%, 98%);
   --destructive: hsl(0, 62.8%, 30.6%);
-  --destructive-foreground: hsl(0, 0%, 98%);
-  --ring: hsl(240, 4.9%, 83.9%);
-  --radius: 0.5rem;
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(216, 34%, 17%);
+  --radius: 0.75rem;
 
-  /* Dark theme medical colors */
-  --medical-blue: hsl(207, 90%, 54%);
-  --medical-green: hsl(159, 64%, 39%);
-  --medical-red: hsl(0, 73%, 56%);
-  --medical-gray-50: hsl(240, 3.7%, 15.9%);
-  --medical-gray-100: hsl(240, 3.7%, 15.9%);
-  --medical-gray-200: hsl(240, 3.7%, 15.9%);
-  --medical-gray-300: hsl(240, 5%, 64.9%);
-  --medical-gray-400: hsl(240, 5%, 64.9%);
-  --medical-gray-500: hsl(240, 5%, 64.9%);
-  --medical-gray-600: hsl(0, 0%, 98%);
-  --medical-gray-700: hsl(0, 0%, 98%);
-  --medical-gray-800: hsl(0, 0%, 98%);
-  --medical-gray-900: hsl(0, 0%, 98%);
+  /* Enhanced Dark theme medical colors */
+  --medical-blue: hsl(217, 91%, 60%);
+  --medical-blue-light: hsl(217, 91%, 15%);
+  --medical-green: hsl(142, 76%, 46%);
+  --medical-green-light: hsl(142, 76%, 15%);
+  --medical-red: hsl(0, 84.2%, 60.2%);
+  --medical-red-light: hsl(0, 84.2%, 15%);
+  --medical-yellow: hsl(43, 96%, 56%);
+  --medical-yellow-light: hsl(43, 96%, 15%);
+  
+  /* Dark gradients */
+  --gradient-primary: linear-gradient(135deg, hsl(217, 91%, 60%) 0%, hsl(217, 91%, 50%) 100%);
+  --gradient-success: linear-gradient(135deg, hsl(142, 76%, 46%) 0%, hsl(142, 76%, 36%) 100%);
+  --gradient-warning: linear-gradient(135deg, hsl(43, 96%, 56%) 0%, hsl(43, 96%, 46%) 100%);
+  --gradient-danger: linear-gradient(135deg, hsl(0, 84.2%, 60.2%) 0%, hsl(0, 84.2%, 50.2%) 100%);
 }
 
 @layer base {
@@ -88,42 +90,60 @@
   }
 }
 
-/* Medical-specific utility classes */
-.medical-blue {
-  color: var(--medical-blue);
+/* Enhanced Medical UI Components */
+.glass-card {
+  @apply backdrop-blur-md bg-white/80 dark:bg-gray-900/80 border border-white/20 dark:border-gray-700/20 rounded-2xl shadow-xl;
 }
 
-.medical-green {
-  color: var(--medical-green);
+.gradient-primary {
+  background: var(--gradient-primary);
 }
 
-.medical-red {
-  color: var(--medical-red);
+.gradient-success {
+  background: var(--gradient-success);
 }
 
-/* Professional medical interface styling */
+.gradient-warning {
+  background: var(--gradient-warning);
+}
+
+.gradient-danger {
+  background: var(--gradient-danger);
+}
+
+/* Enhanced medical interface styling */
 .consultation-card {
-  @apply bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200;
+  @apply bg-card border border-border rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm;
 }
 
 .diagnosis-card {
-  @apply border border-gray-200 rounded-lg hover:border-blue-300 transition-colors duration-200;
+  @apply border border-border rounded-xl transition-all duration-300 hover:shadow-lg hover:scale-[1.02];
+}
+
+.diagnosis-card:hover {
+  border-color: hsl(var(--primary) / 0.5);
 }
 
 .diagnosis-card.high-risk {
-  @apply border-red-200 bg-red-50;
+  border-color: hsl(var(--destructive) / 0.2);
+  background-color: hsl(var(--destructive) / 0.05);
 }
 
-.confidence-badge.high {
-  @apply bg-green-100 text-green-800;
+.dark .diagnosis-card.high-risk {
+  background-color: hsl(var(--destructive) / 0.1);
 }
 
-.confidence-badge.medium {
-  @apply bg-yellow-100 text-yellow-800;
+.interactive-button {
+  @apply transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95;
 }
 
-.confidence-badge.low {
-  @apply bg-red-100 text-red-800;
+.medical-gradient-bg {
+  background: linear-gradient(135deg, 
+    hsl(217, 91%, 60%) 0%, 
+    hsl(217, 91%, 70%) 25%, 
+    hsl(142, 76%, 46%) 50%, 
+    hsl(217, 91%, 60%) 75%, 
+    hsl(217, 91%, 50%) 100%);
 }
 
 /* Loading animations */

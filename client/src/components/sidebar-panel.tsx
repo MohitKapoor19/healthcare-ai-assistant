@@ -55,22 +55,25 @@ export function SidebarPanel({
   };
 
   const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 80) return "text-green-600";
-    if (confidence >= 60) return "text-yellow-600";
-    return "text-red-600";
+    if (confidence >= 80) return "text-green-600 dark:text-green-400";
+    if (confidence >= 60) return "text-yellow-600 dark:text-yellow-400";
+    return "text-red-600 dark:text-red-400";
   };
 
   return (
     <div className="space-y-6">
       {/* Session Status */}
-      <Card>
+      <Card className="consultation-card">
         <CardHeader>
-          <CardTitle className="text-lg">Session Status</CardTitle>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Heart className="h-5 w-5 text-primary" />
+            Session Status
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Session Duration</span>
+              <span className="text-sm text-muted-foreground">Session Duration</span>
               <span className="text-sm font-medium">{sessionDuration}</span>
             </div>
             

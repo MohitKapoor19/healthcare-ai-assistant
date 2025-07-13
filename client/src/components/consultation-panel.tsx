@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Eraser, Clock, ChevronDown, TriangleAlert, BookOpen, TestTube } from "lucide-react";
+import { Brain, Eraser, Clock, ChevronDown, TriangleAlert, BookOpen, TestTube, User } from "lucide-react";
 import type { AppMode, PatientInfo, AIAnalysisResult } from "../types/medical";
 
 interface ConsultationPanelProps {
@@ -37,9 +37,9 @@ export function ConsultationPanel({
   const [expandedDiagnosis, setExpandedDiagnosis] = useState<number | null>(null);
 
   const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 80) return "bg-green-100 text-green-800";
-    if (confidence >= 60) return "bg-yellow-100 text-yellow-800";
-    return "bg-red-100 text-red-800";
+    if (confidence >= 80) return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
+    if (confidence >= 60) return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400";
+    return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
   };
 
   const getConfidenceBadge = (confidence: number) => {
@@ -52,11 +52,14 @@ export function ConsultationPanel({
     <div className="space-y-6">
       {/* Patient Information Card (Doctor Mode) */}
       {mode === 'doctor' && (
-        <Card>
+        <Card className="consultation-card">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Patient Information</CardTitle>
-              <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5 text-primary" />
+                Patient Information
+              </CardTitle>
+              <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
                 Active Session
               </Badge>
             </div>
