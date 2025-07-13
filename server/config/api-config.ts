@@ -5,8 +5,8 @@ export const API_CONFIG = {
       name: 'DeepSeek R1 Distill Llama 70B',
     },
     chat: {
-      model: 'qwen2.5-32b-instruct',
-      name: 'Qwen3 32B',
+      model: 'llama-3.3-70b-versatile',
+      name: 'Llama 3.3 70B Versatile',
     },
   },
 };

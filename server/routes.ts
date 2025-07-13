@@ -171,7 +171,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         providers: {
           groq: {
             reasoner: "DeepSeek R1 Distill Llama 70B",
-            chat: "Qwen3 32B"
+            chat: "Llama 3.3 70B Versatile"
           }
         }
       });

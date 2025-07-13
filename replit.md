@@ -44,14 +44,14 @@ The application follows a modern full-stack architecture with clear separation b
 ### AI Service Integration
 - **Groq API Integration**: Ultra-fast AI inference via Groq cloud platform
 - **DeepSeek R1 Distill Llama 70B**: Advanced medical reasoning and diagnosis generation
-- **Qwen3 32B**: Interactive chat for follow-up questions and patient education
+- **Llama 3.3 70B Versatile**: Interactive chat for follow-up questions and patient education
 - **Intelligent Fallback**: Demo analysis system maintains functionality during API issues
 
 ## Data Flow
 
 1. **Session Creation**: User starts consultation, creates session with unique ID in PostgreSQL
 2. **Symptom Input**: User enters symptoms and patient information
-3. **AI Analysis**: Symptoms processed through Groq API (DeepSeek R1 + Qwen3 models) with intelligent fallback system
+3. **AI Analysis**: Symptoms processed through Groq API (DeepSeek R1 + Llama 3.3 models) with intelligent fallback system
 4. **Result Processing**: AI response parsed into structured diagnostic data with interactive Q&A
 5. **Database Storage**: All session data, diagnoses, and conversation history persisted to PostgreSQL
 6. **Real-time Updates**: UI updates with analysis results, follow-up questions, and step-by-step action plans
@@ -77,7 +77,7 @@ The application follows a modern full-stack architecture with clear separation b
 ### AI/ML Services
 - **Groq API**: Cloud-based AI inference for ultra-fast medical reasoning
 - **DeepSeek R1 Distill Llama 70B**: Advanced reasoning model for diagnostic analysis
-- **Qwen3 32B**: Chat model for interactive follow-up questions and patient education
+- **Llama 3.3 70B Versatile**: Chat model for interactive follow-up questions and patient education
 
 ### Database
 - **Neon Database**: Serverless PostgreSQL for production

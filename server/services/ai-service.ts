@@ -33,7 +33,7 @@ export class AIService {
   private async callGroqAPI(prompt: string, useReasoner: boolean = true): Promise<string> {
     try {
       const groqClient = useReasoner ? this.groqReasoner : this.groqChat;
-      const model = useReasoner ? "deepseek-r1-distill-llama-70b" : "qwen2.5-32b-instruct";
+      const model = useReasoner ? "deepseek-r1-distill-llama-70b" : "llama-3.3-70b-versatile";
 
       const completion = await groqClient.chat.completions.create({
         messages: [
