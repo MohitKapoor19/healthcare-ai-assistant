@@ -163,7 +163,38 @@ export function ConsultationPanel({
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <h3 className="font-medium text-gray-900">Differential Diagnoses</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="font-medium text-gray-900">🔎 AI Diagnostic Output</h3>
+                <Badge variant="secondary" className="bg-green-100 text-green-800">
+                  Analysis Complete
+                </Badge>
+              </div>
+              
+              {/* Quick Summary Bar */}
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 border border-green-200">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                  <div>
+                    <div className="text-lg font-semibold text-green-700">
+                      {analysis.diagnoses[0]?.name || 'Primary Diagnosis'}
+                    </div>
+                    <div className="text-sm text-gray-600">Most Likely</div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-semibold text-blue-700">
+                      {analysis.diagnoses[0]?.confidence || 0}%
+                    </div>
+                    <div className="text-sm text-gray-600">Confidence</div>
+                  </div>
+                  <div>
+                    <div className="text-lg font-semibold text-purple-700">
+                      {analysis.recommendedTests.length}
+                    </div>
+                    <div className="text-sm text-gray-600">Tests Suggested</div>
+                  </div>
+                </div>
+              </div>
+
+              <h4 className="font-medium text-gray-900 mt-6">Possible Diagnoses:</h4>
               
               {analysis.diagnoses.map((diagnosis, index) => (
                 <Card 
@@ -249,22 +280,56 @@ export function ConsultationPanel({
               ))}
             </div>
 
-            {/* Follow-up Questions */}
+            {/* Interactive Q&A Section */}
             {analysis.followUpQuestions.length > 0 && (
               <div className="mt-6 pt-6 border-t border-gray-200">
-                <h3 className="font-medium text-gray-900 mb-3">AI Follow-up Questions</h3>
-                <div className="space-y-2">
-                  {analysis.followUpQuestions.map((question, index) => (
-                    <Button
-                      key={index}
-                      variant="ghost"
-                      className="w-full justify-start text-left p-3 bg-blue-50 hover:bg-blue-100 text-gray-700 h-auto whitespace-normal"
-                      onClick={() => onFollowUpQuestionClick(question)}
-                    >
-                      <BookOpen className="w-4 h-4 mr-2 text-blue-600 flex-shrink-0 mt-0.5" />
-                      <span>{question}</span>
-                    </Button>
-                  ))}
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-medium text-gray-900">🤖 AI Follow-up Questions</h3>
+                  <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                    Click to Answer
+                  </Badge>
+                </div>
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-4">
+                  <p className="text-sm text-gray-700 mb-3">
+                    The AI needs more information to refine the diagnosis. Click any question below to provide your answer:
+                  </p>
+                  <div className="grid gap-2">
+                    {analysis.followUpQuestions.map((question, index) => (
+                      <Button
+                        key={index}
+                        variant="ghost"
+                        className="w-full justify-start text-left p-3 bg-white hover:bg-blue-100 text-gray-700 h-auto whitespace-normal border border-blue-200 hover:border-blue-300 transition-all duration-200"
+                        onClick={() => onFollowUpQuestionClick(question)}
+                      >
+                        <div className="flex items-start space-x-3 w-full">
+                          <div className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-medium mt-0.5">
+                            {index + 1}
+                          </div>
+                          <span className="flex-1">{question}</span>
+                          <BookOpen className="w-4 h-4 text-blue-600 flex-shrink-0 mt-1" />
+                        </div>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Sample Interaction Preview */}
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <h4 className="text-sm font-medium text-gray-800 mb-2">💡 Interactive Diagnosis Process</h4>
+                  <div className="text-xs text-gray-600 space-y-1">
+                    <div className="flex items-center space-x-2">
+                      <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                      <span>Answer questions to refine diagnosis accuracy</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                      <span>Get personalized recommendations based on your answers</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+                      <span>Receive next steps and red flag warnings</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -272,50 +337,106 @@ export function ConsultationPanel({
         </Card>
       )}
 
-      {/* Recommendations */}
+      {/* Clinical Action Plan */}
       {analysis && (
         <Card>
           <CardHeader>
-            <CardTitle>Clinical Recommendations</CardTitle>
+            <CardTitle>🎯 Clinical Action Plan</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Recommended Tests */}
-              <div>
-                <h3 className="font-medium text-gray-900 mb-3 flex items-center">
-                  <TestTube className="w-4 h-4 text-blue-600 mr-2" />
-                  Recommended Tests
+            <div className="space-y-6">
+              {/* Step-by-Step Process */}
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 border border-blue-200">
+                <h3 className="font-medium text-gray-900 mb-4 flex items-center">
+                  <TestTube className="w-5 h-5 text-blue-600 mr-2" />
+                  Suggested Tests & Next Steps
                 </h3>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {analysis.recommendedTests.map((test, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <span className="text-sm font-medium">{test}</span>
-                      <Badge variant="secondary" className="bg-green-100 text-green-800">
-                        Recommended
-                      </Badge>
+                    <div key={index} className="flex items-start space-x-3 p-3 bg-white rounded-lg border border-blue-100">
+                      <div className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-medium">
+                        {index + 1}
+                      </div>
+                      <div className="flex-1">
+                        <span className="text-sm font-medium text-gray-900">{test}</span>
+                        <div className="flex items-center mt-1 space-x-2">
+                          <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
+                            Priority
+                          </Badge>
+                          <span className="text-xs text-gray-500">Order immediately</span>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Red Flags */}
-              <div>
-                <h3 className="font-medium text-gray-900 mb-3 flex items-center">
-                  <TriangleAlert className="w-4 h-4 text-red-600 mr-2" />
-                  Red Flags Detected
-                </h3>
-                <div className="space-y-2">
-                  {analysis.redFlags.map((flag, index) => (
-                    <div key={index} className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                      <div className="flex items-start space-x-2">
-                        <div className="w-2 h-2 bg-red-600 rounded-full mt-2 flex-shrink-0" />
-                        <div>
-                          <p className="text-sm font-medium text-red-700">{flag}</p>
-                          <p className="text-xs text-red-600">Requires immediate attention</p>
+              {/* Red Flags Alert */}
+              {analysis.redFlags.length > 0 && (
+                <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-lg p-4 border border-red-200">
+                  <h3 className="font-medium text-gray-900 mb-4 flex items-center">
+                    <TriangleAlert className="w-5 h-5 text-red-600 mr-2" />
+                    🚨 Red Flag Alerts
+                  </h3>
+                  <div className="space-y-3">
+                    {analysis.redFlags.map((flag, index) => (
+                      <div key={index} className="p-3 bg-white border border-red-200 rounded-lg">
+                        <div className="flex items-start space-x-3">
+                          <div className="w-2 h-2 bg-red-600 rounded-full mt-2 flex-shrink-0" />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-red-700">{flag}</p>
+                            <p className="text-xs text-red-600 mt-1">
+                              {mode === 'doctor' 
+                                ? 'Monitor closely and consider immediate intervention if applicable'
+                                : 'Seek immediate medical attention if you experience these symptoms'
+                              }
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Next Steps Summary */}
+              <div className="bg-gradient-to-r from-green-50 to-teal-50 rounded-lg p-4 border border-green-200">
+                <h3 className="font-medium text-gray-900 mb-3 flex items-center">
+                  <span className="text-green-600 mr-2">📋</span>
+                  Next Steps Summary
+                </h3>
+                <div className="space-y-2 text-sm">
+                  {mode === 'doctor' ? (
+                    <>
+                      <div className="flex items-center space-x-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                        <span>Order recommended tests: {analysis.recommendedTests.slice(0, 2).join(', ')}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                        <span>Monitor for red flag symptoms</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+                        <span>Consider admission if: {analysis.diagnoses[0]?.confidence < 30 ? 'Critical symptoms present' : 'Patient deteriorates'}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex items-center space-x-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                        <span>Schedule appointment with your healthcare provider</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                        <span>Keep track of your symptoms and any changes</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                        <span>Seek immediate care if symptoms worsen</span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

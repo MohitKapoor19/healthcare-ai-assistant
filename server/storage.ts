@@ -73,6 +73,10 @@ export class MemStorage implements IStorage {
     const session: ConsultationSession = {
       id,
       ...insertSession,
+      patientInfo: insertSession.patientInfo || null,
+      symptoms: insertSession.symptoms || null,
+      aiAnalysis: insertSession.aiAnalysis || null,
+      conversationHistory: insertSession.conversationHistory || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -98,6 +102,11 @@ export class MemStorage implements IStorage {
     const diagnosis: Diagnosis = {
       id,
       ...insertDiagnosis,
+      description: insertDiagnosis.description || null,
+      confidence: insertDiagnosis.confidence || null,
+      category: insertDiagnosis.category || null,
+      redFlags: insertDiagnosis.redFlags || null,
+      recommendedTests: insertDiagnosis.recommendedTests || null,
       createdAt: new Date(),
     };
     this.diagnoses.set(id, diagnosis);
