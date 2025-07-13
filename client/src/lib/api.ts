@@ -19,11 +19,22 @@ export const api = {
   },
 
   // AI Analysis
+  generateFollowUpQuestions: async (data: {
+    symptoms: string;
+    mode: 'doctor' | 'patient';
+    sessionId: string;
+    patientInfo?: any;
+  }): Promise<{ questions: string[] }> => {
+    const response = await apiRequest("POST", "/api/generate-questions", data);
+    return response.json();
+  },
+
   analyzeSymptoms: async (data: {
     symptoms: string;
     mode: 'doctor' | 'patient';
     sessionId: string;
     patientInfo?: any;
+    followUpAnswers?: Array<{ question: string; answer: string }>;
   }): Promise<AIAnalysisResult> => {
     const response = await apiRequest("POST", "/api/analyze", data);
     return response.json();

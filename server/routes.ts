@@ -45,8 +45,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Analyze symptoms with AI
-  app.post("/api/analyze", async (req, res) => {
+  // Generate follow-up questions based on initial symptoms
+  app.post("/api/generate-questions", async (req, res) => {
     try {
       const { symptoms, mode, sessionId, patientInfo } = req.body;
       
@@ -61,12 +61,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: symptoms
       });
 
-      // Perform AI analysis
-      const analysis = await aiService.analyzeSymptoms(symptoms, mode, patientInfo);
+      // Generate follow-up questions
+      const questions = await aiService.generateFollowUpQuestions(symptoms, mode, patientInfo);
+
+      // Update session with initial symptoms
+      await storage.updateSession(sessionId, {
+        symptoms,
+        patientInfo: mode === 'doctor' ? patientInfo : undefined
+      });
+
+      // Add AI response to conversation
+      await storage.addConversationEntry({
+        sessionId,
+        type: 'ai',
+        message: 'Generated follow-up questions to gather more details'
+      });
+
+      res.json({ questions });
+    } catch (error) {
+      console.error('Question generation error:', error);
+      res.status(500).json({ error: "Failed to generate follow-up questions. Please check AI service connectivity." });
+    }
+  });
+
+  // Analyze symptoms with additional information from follow-up questions
+  app.post("/api/analyze", async (req, res) => {
+    try {
+      const { symptoms, mode, sessionId, patientInfo, followUpAnswers } = req.body;
+      
+      if (!symptoms || !mode || !sessionId) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      // Combine initial symptoms with follow-up answers for comprehensive analysis
+      const comprehensiveSymptoms = followUpAnswers 
+        ? `${symptoms}\n\nAdditional Information:\n${followUpAnswers.map((qa: any) => `Q: ${qa.question}\nA: ${qa.answer}`).join('\n\n')}`
+        : symptoms;
+
+      // Add follow-up information to conversation if provided
+      if (followUpAnswers && followUpAnswers.length > 0) {
+        await storage.addConversationEntry({
+          sessionId,
+          type: 'user',
+          message: `Follow-up responses: ${followUpAnswers.map((qa: any) => `${qa.question}: ${qa.answer}`).join('; ')}`
+        });
+      }
+
+      // Perform comprehensive AI analysis
+      const analysis = await aiService.analyzeSymptoms(comprehensiveSymptoms, mode, patientInfo);
 
       // Update session with analysis
       await storage.updateSession(sessionId, {
-        symptoms,
+        symptoms: comprehensiveSymptoms,
         aiAnalysis: analysis
       });
 
@@ -74,7 +120,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.addConversationEntry({
         sessionId,
         type: 'ai',
-        message: 'Provided differential diagnoses and recommendations'
+        message: 'Provided comprehensive differential diagnoses and recommendations'
       });
 
       // Store individual diagnoses

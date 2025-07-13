@@ -11,7 +11,7 @@ import { LoadingOverlay } from "../components/loading-overlay";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { api } from "../lib/api";
-import type { AppMode, PatientInfo, AIAnalysisResult, ConsultationSession } from "../types/medical";
+import type { AppMode, PatientInfo, AIAnalysisResult, ConsultationSession, FlowState, FollowUpQA } from "../types/medical";
 
 export default function Home() {
   const { toast } = useToast();
@@ -19,8 +19,13 @@ export default function Home() {
   const [mode, setMode] = useState<AppMode>('doctor');
   const [sessionId] = useState(() => `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
   const [patientInfo, setPatientInfo] = useState<PatientInfo>({});
-  const [symptoms, setSymptoms] = useState("");
-  const [analysis, setAnalysis] = useState<AIAnalysisResult | undefined>();
+  const [flowState, setFlowState] = useState<FlowState>({
+    step: 'symptoms',
+    symptoms: '',
+    followUpQuestions: [],
+    followUpAnswers: [],
+    analysis: undefined
+  });
   const [sessionStartTime] = useState(new Date());
   const [queriesUsed, setQueriesUsed] = useState(0);
   const [sessionDuration, setSessionDuration] = useState("00:00");
@@ -68,16 +73,50 @@ export default function Home() {
     },
   });
 
-  // Analyze symptoms mutation
-  const analyzeMutation = useMutation({
+  // Generate follow-up questions mutation
+  const generateQuestionsMutation = useMutation({
     mutationFn: (data: { symptoms: string; mode: AppMode; sessionId: string; patientInfo?: PatientInfo }) =>
-      api.analyzeSymptoms(data),
+      api.generateFollowUpQuestions(data),
     onSuccess: (result) => {
-      setAnalysis(result);
+      setFlowState(prev => ({
+        ...prev,
+        step: 'questions',
+        followUpQuestions: result.questions
+      }));
+      setQueriesUsed(prev => prev + 1);
+      toast({
+        title: "Follow-up Questions Ready",
+        description: "Please answer the questions to get a comprehensive analysis.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Question Generation Failed",
+        description: "Failed to generate follow-up questions. Please check AI service connectivity.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Analyze symptoms mutation (with follow-up answers)
+  const analyzeMutation = useMutation({
+    mutationFn: (data: { 
+      symptoms: string; 
+      mode: AppMode; 
+      sessionId: string; 
+      patientInfo?: PatientInfo;
+      followUpAnswers?: FollowUpQA[];
+    }) => api.analyzeSymptoms(data),
+    onSuccess: (result) => {
+      setFlowState(prev => ({
+        ...prev,
+        step: 'complete',
+        analysis: result
+      }));
       setQueriesUsed(prev => prev + 1);
       toast({
         title: "Analysis Complete",
-        description: "AI has successfully analyzed the symptoms.",
+        description: "AI has successfully analyzed the symptoms with comprehensive details.",
       });
     },
     onError: (error) => {
@@ -119,21 +158,29 @@ export default function Home() {
 
   const handleModeChange = (newMode: AppMode) => {
     setMode(newMode);
-    // Clear analysis when switching modes
-    setAnalysis(undefined);
+    // Reset flow when switching modes
+    setFlowState({
+      step: 'symptoms',
+      symptoms: '',
+      followUpQuestions: [],
+      followUpAnswers: [],
+      analysis: undefined
+    });
   };
 
-  const handleAnalyze = () => {
+  const handleStartFlow = (symptoms: string) => {
     if (!symptoms.trim()) {
       toast({
         title: "No Symptoms",
-        description: "Please enter symptoms before analyzing.",
+        description: "Please enter symptoms before starting analysis.",
         variant: "destructive",
       });
       return;
     }
 
-    analyzeMutation.mutate({
+    setFlowState(prev => ({ ...prev, symptoms }));
+
+    generateQuestionsMutation.mutate({
       symptoms,
       mode,
       sessionId,
@@ -141,13 +188,44 @@ export default function Home() {
     });
   };
 
+  const handleAnswerQuestions = (answers: FollowUpQA[]) => {
+    setFlowState(prev => ({ ...prev, followUpAnswers: answers }));
+
+    analyzeMutation.mutate({
+      symptoms: flowState.symptoms,
+      mode,
+      sessionId,
+      patientInfo: mode === 'doctor' ? patientInfo : undefined,
+      followUpAnswers: answers,
+    });
+  };
+
+  const handleSkipQuestions = () => {
+    // Proceed directly to analysis without follow-up answers
+    analyzeMutation.mutate({
+      symptoms: flowState.symptoms,
+      mode,
+      sessionId,
+      patientInfo: mode === 'doctor' ? patientInfo : undefined,
+    });
+  };
+
   const handleClear = () => {
-    setSymptoms("");
-    setAnalysis(undefined);
+    setFlowState({
+      step: 'symptoms',
+      symptoms: '',
+      followUpQuestions: [],
+      followUpAnswers: [],
+      analysis: undefined
+    });
   };
 
   const handleFollowUpQuestionClick = (question: string) => {
-    setSymptoms(question);
+    setFlowState(prev => ({ 
+      ...prev, 
+      symptoms: question,
+      step: 'symptoms'
+    }));
   };
 
   const handleExport = () => {
@@ -170,7 +248,7 @@ export default function Home() {
             sessionId={sessionId}
             sessionDuration={sessionDuration}
             queriesUsed={queriesUsed}
-            overallConfidence={analysis?.overallConfidence || 0}
+            overallConfidence={flowState.analysis?.overallConfidence || 0}
             onExport={() => {
               handleExport();
               setSidebarOpen(false);
@@ -227,12 +305,12 @@ export default function Home() {
             <ConsultationPanel
               mode={mode}
               patientInfo={patientInfo}
-              symptoms={symptoms}
-              analysis={analysis}
-              isAnalyzing={analyzeMutation.isPending}
+              flowState={flowState}
+              isAnalyzing={analyzeMutation.isPending || generateQuestionsMutation.isPending}
               onPatientInfoChange={setPatientInfo}
-              onSymptomsChange={setSymptoms}
-              onAnalyze={handleAnalyze}
+              onStartFlow={handleStartFlow}
+              onAnswerQuestions={handleAnswerQuestions}
+              onSkipQuestions={handleSkipQuestions}
               onClear={handleClear}
               onFollowUpQuestionClick={handleFollowUpQuestionClick}
             />
@@ -244,7 +322,7 @@ export default function Home() {
               sessionId={sessionId}
               sessionDuration={sessionDuration}
               queriesUsed={queriesUsed}
-              overallConfidence={analysis?.overallConfidence || 0}
+              overallConfidence={flowState.analysis?.overallConfidence || 0}
               onExport={handleExport}
             />
           </div>
@@ -253,8 +331,8 @@ export default function Home() {
 
       {/* Loading Overlay */}
       <LoadingOverlay 
-        isVisible={analyzeMutation.isPending}
-        message="AI Analysis in Progress"
+        isVisible={analyzeMutation.isPending || generateQuestionsMutation.isPending}
+        message={generateQuestionsMutation.isPending ? "Generating Follow-up Questions" : "AI Analysis in Progress"}
       />
     </div>
   );

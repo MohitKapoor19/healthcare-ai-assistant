@@ -55,6 +55,20 @@ export class AIService {
     }
   }
 
+  async generateFollowUpQuestions(symptoms: string, mode: 'doctor' | 'patient', patientInfo?: any): Promise<string[]> {
+    const prompt = this.buildFollowUpQuestionsPrompt(symptoms, mode, patientInfo);
+    
+    try {
+      // Use chat model for generating follow-up questions
+      const response = await this.callGroqAPI(prompt, false);
+      return this.parseFollowUpQuestions(response);
+    } catch (error) {
+      console.error('Groq Follow-up Questions Error:', error);
+      // Fallback to demo questions
+      return this.generateDemoFollowUpQuestions(symptoms, mode);
+    }
+  }
+
   async analyzeSymptoms(symptoms: string, mode: 'doctor' | 'patient', patientInfo?: any): Promise<AIAnalysisResult> {
     const basePrompt = this.buildAnalysisPrompt(symptoms, mode, patientInfo);
     
@@ -64,12 +78,6 @@ export class AIService {
       
       // Parse the reasoner response to extract structured data
       const analysisResult = this.parseReasonerResponse(reasonerResponse);
-      
-      // Generate follow-up questions using Qwen3 32B chat model
-      const followUpPrompt = this.buildFollowUpPrompt(symptoms, analysisResult);
-      const chatResponse = await this.callGroqAPI(followUpPrompt, false);
-      
-      analysisResult.followUpQuestions = this.parseFollowUpQuestions(chatResponse);
       
       return analysisResult;
     } catch (error) {
@@ -112,6 +120,36 @@ Focus on:
 3. Appropriate diagnostic tests
 4. Clear, actionable recommendations
 ${mode === 'doctor' ? '5. Include ICD-10 codes and medical references where appropriate' : '5. Use patient-friendly language'}`;
+  }
+
+  private buildFollowUpQuestionsPrompt(symptoms: string, mode: string, patientInfo?: any): string {
+    const modeContext = mode === 'doctor' 
+      ? "You are assisting a healthcare professional with patient assessment."
+      : "You are helping a patient provide detailed health information. Use simple, clear language.";
+
+    return `${modeContext}
+
+Based on these initial symptoms: "${symptoms}"
+${patientInfo ? `Patient information: Age ${patientInfo.age}, Gender: ${patientInfo.gender}` : ''}
+
+Generate 4-6 specific follow-up questions that would help gather essential information for a comprehensive medical assessment.
+
+Return ONLY a JSON array of questions:
+["Question 1?", "Question 2?", "Question 3?"]
+
+${mode === 'doctor' ? `Focus on:
+- Symptom timing, onset, and progression
+- Associated symptoms and triggers
+- Past medical history and family history
+- Current medications and allergies
+- Physical examination findings if relevant` : `Focus on:
+- When the symptoms started and how they've changed
+- What makes symptoms better or worse
+- Any other symptoms you might have
+- Medications you're currently taking
+- Any similar problems in the past`}
+
+Keep questions clear, specific, and directly relevant to the symptoms described.`;
   }
 
   private buildFollowUpPrompt(symptoms: string, analysis: AIAnalysisResult): string {
@@ -316,6 +354,73 @@ Focus on:
     };
 
     return descriptions[name]?.[mode] || `${mode === 'doctor' ? 'Clinical condition requiring evaluation.' : 'Medical condition that should be evaluated by a healthcare provider.'}`;
+  }
+
+  private generateDemoFollowUpQuestions(symptoms: string, mode: 'doctor' | 'patient'): string[] {
+    const symptomLower = symptoms.toLowerCase();
+    
+    // General questions that apply to most symptoms
+    const generalQuestions = mode === 'doctor' ? [
+      "When did the symptoms first appear and how have they progressed?",
+      "What is the severity of symptoms on a scale of 1-10?",
+      "Are there any associated symptoms or warning signs?",
+      "What is the patient's relevant medical and family history?",
+      "What medications is the patient currently taking?",
+      "Have any treatments been attempted and what were the results?"
+    ] : [
+      "When did you first notice these symptoms?",
+      "How would you rate the severity from 1-10?",
+      "Have you noticed any other symptoms along with this?",
+      "Do you have any ongoing health conditions?",
+      "What medications are you currently taking?",
+      "Have you tried anything to relieve the symptoms?"
+    ];
+    
+    // Symptom-specific questions
+    if (symptomLower.includes('fever') || symptomLower.includes('temperature')) {
+      return mode === 'doctor' ? [
+        "What is the documented temperature range and pattern?",
+        "Any associated symptoms like rigors, sweats, or rash?",
+        "Recent travel history or exposure to infectious diseases?",
+        "Any localizing symptoms suggesting source of infection?"
+      ] : [
+        "How high has your temperature been?",
+        "Are you experiencing chills or sweating?",
+        "Have you traveled anywhere recently?",
+        "Do you have any pain or discomfort anywhere specific?"
+      ];
+    }
+    
+    if (symptomLower.includes('pain') || symptomLower.includes('ache')) {
+      return mode === 'doctor' ? [
+        "Can you describe the character, location, and radiation of pain?",
+        "What are the aggravating and relieving factors?",
+        "Is there any temporal pattern to the pain?",
+        "Any associated neurological symptoms?"
+      ] : [
+        "Where exactly do you feel the pain?",
+        "What does the pain feel like (sharp, dull, burning)?",
+        "Does anything make the pain better or worse?",
+        "Have you noticed any numbness or tingling?"
+      ];
+    }
+    
+    if (symptomLower.includes('headache') || symptomLower.includes('head')) {
+      return mode === 'doctor' ? [
+        "What is the location, quality, and severity of the headache?",
+        "Any associated neurological symptoms or aura?",
+        "Is there photophobia, phonophobia, or nausea?",
+        "Any recent head trauma or medication changes?"
+      ] : [
+        "Where in your head do you feel the pain?",
+        "Do you feel sick to your stomach or sensitive to light?",
+        "Have you hit your head recently?",
+        "Are you taking any new medications?"
+      ];
+    }
+    
+    // Return first 5 questions, falling back to general if no specific match
+    return generalQuestions.slice(0, 5);
   }
 
   async generatePatientEducation(diagnosis: string): Promise<string> {

@@ -42,3 +42,16 @@ export interface ConsultationSession {
 }
 
 export type AppMode = 'doctor' | 'patient';
+
+export interface FollowUpQA {
+  question: string;
+  answer: string;
+}
+
+export interface FlowState {
+  step: 'symptoms' | 'questions' | 'analysis' | 'complete';
+  symptoms: string;
+  followUpQuestions: string[];
+  followUpAnswers: FollowUpQA[];
+  analysis?: AIAnalysisResult;
+}
