@@ -12,6 +12,8 @@ import {
   type ConversationEntry,
   type InsertConversationEntry
 } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -137,4 +139,80 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage implements IStorage {
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async createSession(insertSession: InsertConsultationSession): Promise<ConsultationSession> {
+    const [session] = await db
+      .insert(consultationSessions)
+      .values(insertSession)
+      .returning();
+    return session;
+  }
+
+  async getSession(sessionId: string): Promise<ConsultationSession | undefined> {
+    const [session] = await db
+      .select()
+      .from(consultationSessions)
+      .where(eq(consultationSessions.sessionId, sessionId));
+    return session || undefined;
+  }
+
+  async updateSession(sessionId: string, updates: Partial<ConsultationSession>): Promise<ConsultationSession | undefined> {
+    const [session] = await db
+      .update(consultationSessions)
+      .set(updates)
+      .where(eq(consultationSessions.sessionId, sessionId))
+      .returning();
+    return session || undefined;
+  }
+
+  async createDiagnosis(insertDiagnosis: InsertDiagnosis): Promise<Diagnosis> {
+    const [diagnosis] = await db
+      .insert(diagnoses)
+      .values(insertDiagnosis)
+      .returning();
+    return diagnosis;
+  }
+
+  async getDiagnosesBySession(sessionId: string): Promise<Diagnosis[]> {
+    return await db
+      .select()
+      .from(diagnoses)
+      .where(eq(diagnoses.sessionId, sessionId));
+  }
+
+  async addConversationEntry(insertEntry: InsertConversationEntry): Promise<ConversationEntry> {
+    const [entry] = await db
+      .insert(conversationEntries)
+      .values(insertEntry)
+      .returning();
+    return entry;
+  }
+
+  async getConversationHistory(sessionId: string): Promise<ConversationEntry[]> {
+    return await db
+      .select()
+      .from(conversationEntries)
+      .where(eq(conversationEntries.sessionId, sessionId))
+      .orderBy(conversationEntries.timestamp);
+  }
+}
+
+export const storage = new DatabaseStorage();

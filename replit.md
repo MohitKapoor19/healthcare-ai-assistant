@@ -23,9 +23,9 @@ The application follows a modern full-stack architecture with clear separation b
 ### Backend Architecture
 - **Runtime**: Node.js with Express.js
 - **Language**: TypeScript with ESM modules
-- **Database ORM**: Drizzle ORM with PostgreSQL
+- **Database**: PostgreSQL with Drizzle ORM (DatabaseStorage replaces MemStorage)
 - **Session Management**: Express sessions with PostgreSQL store
-- **AI Integration**: Ollama API for DeepSeek model inference
+- **AI Integration**: Ollama API for DeepSeek model inference with intelligent fallback
 
 ## Key Components
 
@@ -49,12 +49,21 @@ The application follows a modern full-stack architecture with clear separation b
 
 ## Data Flow
 
-1. **Session Creation**: User starts consultation, creates session with unique ID
+1. **Session Creation**: User starts consultation, creates session with unique ID in PostgreSQL
 2. **Symptom Input**: User enters symptoms and patient information
-3. **AI Analysis**: Symptoms sent to Ollama API with DeepSeek models for processing
-4. **Result Processing**: AI response parsed into structured diagnostic data
-5. **Storage**: Results stored in PostgreSQL with conversation history
-6. **Real-time Updates**: UI updates with analysis results and follow-up questions
+3. **AI Analysis**: Symptoms processed through DeepSeek models (Ollama) or intelligent fallback system
+4. **Result Processing**: AI response parsed into structured diagnostic data with interactive Q&A
+5. **Database Storage**: All session data, diagnoses, and conversation history persisted to PostgreSQL
+6. **Real-time Updates**: UI updates with analysis results, follow-up questions, and step-by-step action plans
+
+## Recent Changes
+
+### Database Integration (July 13, 2025)
+- **Added PostgreSQL database**: Migrated from in-memory storage to persistent database
+- **Database Schema**: Full consultation sessions, diagnoses, and conversation tracking
+- **Enhanced Q&A System**: Interactive follow-up questions with mode-specific responses
+- **Intelligent Fallback**: Demo analysis system when Ollama is unavailable
+- **Step-by-step Action Plans**: Clinical recommendations with red flag alerts
 
 ## External Dependencies
 
