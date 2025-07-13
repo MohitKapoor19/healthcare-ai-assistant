@@ -58,6 +58,13 @@ The application follows a modern full-stack architecture with clear separation b
 
 ## Recent Changes
 
+### Visual Enhancement & Dark Mode (July 13, 2025)
+- **Complete Dark Mode Support**: Added theme provider with light/dark/system themes
+- **Enhanced Visual Design**: Modern gradients, glass-card effects, and medical-themed colors
+- **Mobile Responsiveness**: Collapsible sidebar, optimized layouts, and touch-friendly interface
+- **Header Layout Fix**: Widened header to prevent title text cutoff and improved responsive design
+- **Professional Styling**: Enhanced consultation cards, loading overlays, and interactive animations
+
 ### Database Integration (July 13, 2025)
 - **Added PostgreSQL database**: Migrated from in-memory storage to persistent database
 - **Database Schema**: Full consultation sessions, diagnoses, and conversation tracking

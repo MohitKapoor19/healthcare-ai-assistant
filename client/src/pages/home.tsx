@@ -185,17 +185,22 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       {/* Enhanced Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4">
+        <div className="w-full max-w-none px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 gradient-primary rounded-xl shadow-lg">
+            <div className="flex items-center space-x-3 min-w-0 flex-1">
+              <div className="p-2 gradient-primary rounded-xl shadow-lg flex-shrink-0">
                 <Stethoscope className="h-6 w-6 text-white" />
               </div>
-              <div className="hidden sm:block">
-                <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              <div className="hidden sm:block min-w-0">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent whitespace-nowrap">
                   AI Diagnostic Copilot
                 </h1>
-                <p className="text-sm text-muted-foreground">Intelligent Medical Analysis Assistant</p>
+                <p className="text-sm text-muted-foreground whitespace-nowrap">Intelligent Medical Analysis Assistant</p>
+              </div>
+              <div className="block sm:hidden min-w-0">
+                <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                  AI Diagnostic
+                </h1>
               </div>
             </div>
             
@@ -215,10 +220,10 @@ export default function Home() {
       </header>
 
       {/* Enhanced Main Content */}
-      <div className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="w-full max-w-none px-4 sm:px-6 lg:px-8 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-3 gap-6 max-w-7xl mx-auto">
           {/* Main Consultation Panel */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-3 xl:col-span-2">
             <ConsultationPanel
               mode={mode}
               patientInfo={patientInfo}
@@ -234,7 +239,7 @@ export default function Home() {
           </div>
 
           {/* Desktop Sidebar - Hidden on Mobile */}
-          <div className="hidden lg:block">
+          <div className="hidden lg:block lg:col-span-1 xl:col-span-1">
             <SidebarPanel
               sessionId={sessionId}
               sessionDuration={sessionDuration}
