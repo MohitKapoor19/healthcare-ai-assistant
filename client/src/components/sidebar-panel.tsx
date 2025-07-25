@@ -1,12 +1,25 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Download, User, Bot, Server, BriefcaseMedical, Heart, Pill, Circle } from "lucide-react";
+import { Download, User, Bot, Server, BriefcaseMedical, Heart, Pill, Circle, RefreshCw } from "lucide-react";
 import { api } from "../lib/api";
+import { useToast } from "@/hooks/use-toast";
 import type { ConversationEntry } from "../types/medical";
+
+interface HealthData {
+  status: string;
+  timestamp: string;
+  version: string;
+  environment: string;
+  models?: {
+    reasoner?: string;
+    chat?: string;
+  };
+  database?: string;
+}
 
 interface SidebarPanelProps {
   sessionId: string;
@@ -24,6 +37,7 @@ export function SidebarPanel({
   onExport 
 }: SidebarPanelProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const { toast } = useToast();
 
   // Update time every second
   useEffect(() => {
@@ -40,9 +54,55 @@ export function SidebarPanel({
   });
 
   // Fetch health status
-  const { data: healthData } = useQuery({
+  const { data: healthData } = useQuery<HealthData>({
     queryKey: ['/api/health'],
     refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  const queryClient = useQueryClient();
+
+  // AI Connection Test Mutation
+  const testAIConnectionMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/test-ai-connection', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to test AI connectivity');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      // Refresh health data to get updated status
+      queryClient.invalidateQueries({ queryKey: ['/api/health'] });
+      
+      // Show success toast
+      if (data.status === 'success') {
+        toast({
+          title: "AI Connection Test Successful",
+          description: "All AI models are connected and working properly.",
+        });
+      } else {
+        toast({
+          title: "AI Connection Test Completed",
+          description: data.message || "Some AI models may have connectivity issues.",
+          variant: "destructive"
+        });
+      }
+    },
+    onError: (error) => {
+      console.error('AI connection test failed:', error);
+      toast({
+        title: "AI Connection Test Failed",
+        description: "Unable to test AI connectivity. Please check your network connection.",
+        variant: "destructive"
+      });
+    },
   });
 
   const formatTime = (date: Date) => {
@@ -196,50 +256,111 @@ export function SidebarPanel({
 
       {/* AI Model Status */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">AI Model Status</CardTitle>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">AI Model Status</CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => testAIConnectionMutation.mutate()}
+              disabled={testAIConnectionMutation.isPending}
+              className="h-7 px-2 text-xs"
+            >
+              {testAIConnectionMutation.isPending ? (
+                <>
+                  <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
+                  Testing...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="w-3 h-3 mr-1" />
+                  Test
+                </>
+              )}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Circle className={`w-2 h-2 ${
-                  healthData?.models?.reasoner === 'connected' ? 'text-green-500' : 'text-red-500'
+                  healthData?.models?.reasoner === 'connected' ? 'text-green-500' : 
+                  healthData?.models?.reasoner === 'demo_mode' ? 'text-yellow-500' : 'text-red-500'
                 } fill-current`} />
                 <span className="text-sm text-gray-700">DeepSeek Reasoner</span>
               </div>
               <Badge variant="secondary" className={
                 healthData?.models?.reasoner === 'connected' 
                   ? 'bg-green-100 text-green-800' 
+                  : healthData?.models?.reasoner === 'demo_mode'
+                  ? 'bg-yellow-100 text-yellow-800'
                   : 'bg-red-100 text-red-800'
               }>
-                {healthData?.models?.reasoner || 'Unknown'}
+                {healthData?.models?.reasoner === 'connected' ? 'Connected' : 
+                 healthData?.models?.reasoner === 'demo_mode' ? 'Demo Mode' :
+                 healthData?.models?.reasoner === 'disconnected' ? 'Disconnected' : 'Unknown'}
               </Badge>
             </div>
             
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Circle className={`w-2 h-2 ${
-                  healthData?.models?.chat === 'connected' ? 'text-green-500' : 'text-red-500'
+                  healthData?.models?.chat === 'connected' ? 'text-green-500' : 
+                  healthData?.models?.chat === 'demo_mode' ? 'text-yellow-500' : 'text-red-500'
                 } fill-current`} />
                 <span className="text-sm text-gray-700">DeepSeek Chat</span>
               </div>
               <Badge variant="secondary" className={
                 healthData?.models?.chat === 'connected' 
                   ? 'bg-green-100 text-green-800' 
+                  : healthData?.models?.chat === 'demo_mode'
+                  ? 'bg-yellow-100 text-yellow-800'
                   : 'bg-red-100 text-red-800'
               }>
-                {healthData?.models?.chat || 'Unknown'}
+                {healthData?.models?.chat === 'connected' ? 'Connected' : 
+                 healthData?.models?.chat === 'demo_mode' ? 'Demo Mode' :
+                 healthData?.models?.chat === 'disconnected' ? 'Disconnected' : 'Unknown'}
               </Badge>
             </div>
             
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Server className="w-3 h-3 text-blue-600" />
-                <span className="text-sm text-gray-700">Ollama Server</span>
+                <span className="text-sm text-gray-700">Database</span>
               </div>
-              <span className="text-xs text-gray-500">localhost:11434</span>
+              <Badge variant="secondary" className={
+                healthData?.database === 'connected' 
+                  ? 'bg-green-100 text-green-800' 
+                  : 'bg-red-100 text-red-800'
+              }>
+                {healthData?.database === 'connected' ? 'Connected' : 
+                 healthData?.database === 'disconnected' ? 'Disconnected' : 'Unknown'}
+              </Badge>
             </div>
+
+            {/* Test Results Display */}
+            {testAIConnectionMutation.data && (
+              <div className="mt-3 p-2 bg-gray-50 rounded-md">
+                <div className="text-xs text-gray-600">
+                  <div className="font-medium mb-1">Last Test: {testAIConnectionMutation.data.status}</div>
+                  {testAIConnectionMutation.data.results && (
+                    <div className="space-y-1">
+                      <div>Reasoner: {testAIConnectionMutation.data.results.reasoner.status}</div>
+                      <div>Chat: {testAIConnectionMutation.data.results.chat.status}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {testAIConnectionMutation.error && (
+              <div className="mt-3 p-2 bg-red-50 rounded-md">
+                <div className="text-xs text-red-600">
+                  Test failed: {testAIConnectionMutation.error.message}
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

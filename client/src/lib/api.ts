@@ -1,5 +1,15 @@
 import { apiRequest } from "./queryClient";
-import type { ConsultationSession, AIAnalysisResult, ConversationEntry, DiagnosisResult } from "../types/medical";
+import type { 
+  ConsultationSession, 
+  AIAnalysisResult, 
+  ConversationEntry, 
+  DiagnosisResult,
+  MCQQuestion,
+  TreatmentPathway,
+  RiskAssessment,
+  PatientEducation,
+  ClinicalAlert
+} from "../types/medical";
 
 export const api = {
   // Session management
@@ -61,6 +71,71 @@ export const api = {
   // Education
   getEducationContent: async (diagnosis: string): Promise<{ content: string }> => {
     const response = await apiRequest("POST", "/api/education", { diagnosis });
+    return response.json();
+  },
+
+  // MCQ Questions
+  generateMCQQuestions: async (data: {
+    diagnosis: string;
+    patientInfo?: any;
+    mode: 'doctor' | 'patient';
+  }): Promise<{ questions: MCQQuestion[] }> => {
+    const response = await apiRequest("POST", "/api/generate-mcq", data);
+    return response.json();
+  },
+
+  // Enhanced Analysis Features
+  getTreatmentPathway: async (data: {
+    diagnosis: string;
+    patientInfo?: any;
+  }): Promise<TreatmentPathway> => {
+    const response = await apiRequest("POST", "/api/treatment-pathway", data);
+    return response.json();
+  },
+
+  getRiskAssessment: async (data: {
+    diagnosis: string;
+    symptoms: string;
+    patientInfo?: any;
+  }): Promise<RiskAssessment> => {
+    const response = await apiRequest("POST", "/api/risk-assessment", data);
+    return response.json();
+  },
+
+  getPatientEducation: async (data: {
+    diagnosis: string;
+    educationLevel: string;
+    language: string;
+  }): Promise<PatientEducation> => {
+    const response = await apiRequest("POST", "/api/patient-education", data);
+    return response.json();
+  },
+
+  getClinicalAlerts: async (data: {
+    diagnosis: string;
+    symptoms: string;
+    patientInfo?: any;
+  }): Promise<ClinicalAlert[]> => {
+    const response = await apiRequest("POST", "/api/clinical-alerts", data);
+    return response.json();
+  },
+
+  // Enhanced Analysis (combines multiple features)
+  getEnhancedAnalysis: async (data: {
+    symptoms: string;
+    mode: 'doctor' | 'patient';
+    sessionId: string;
+    patientInfo?: any;
+    followUpAnswers?: Array<{ question: string; answer: string }>;
+  }): Promise<{
+    analysis: AIAnalysisResult;
+    mcqQuestions?: MCQQuestion[];
+    treatmentPathway?: TreatmentPathway;
+    riskAssessment?: RiskAssessment;
+    patientEducation?: PatientEducation;
+    clinicalAlerts?: ClinicalAlert[];
+  }> => {
+    const response = await apiRequest("POST", "/api/enhanced-analysis", data);
     return response.json();
   },
 

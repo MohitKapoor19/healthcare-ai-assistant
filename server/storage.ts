@@ -159,6 +159,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createSession(insertSession: InsertConsultationSession): Promise<ConsultationSession> {
+    // Check if session already exists
+    const existingSession = await this.getSession(insertSession.sessionId);
+    if (existingSession) {
+      // Update existing session instead of creating new one
+      return await this.updateSession(insertSession.sessionId, insertSession) || existingSession;
+    }
+    
     const [session] = await db
       .insert(consultationSessions)
       .values(insertSession)
